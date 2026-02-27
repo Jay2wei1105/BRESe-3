@@ -9,15 +9,27 @@ import { Menu, X, ArrowRight } from "lucide-react";
 export function Navbar() {
     const pathname = usePathname();
     const [isScrolled, setIsScrolled] = useState(false);
+    const [isVisible, setIsVisible] = useState(true);
+    const [lastScrollY, setLastScrollY] = useState(0);
     const [isMenuOpen, setIsMenuOpen] = useState(false);
 
     useEffect(() => {
         const handleScroll = () => {
-            setIsScrolled(window.scrollY > 50);
+            const currentScrollY = window.scrollY;
+            setIsScrolled(currentScrollY > 50);
+
+            if (currentScrollY > lastScrollY && currentScrollY > 100) {
+                // Scrolling down
+                setIsVisible(false);
+            } else {
+                // Scrolling up
+                setIsVisible(true);
+            }
+            setLastScrollY(currentScrollY);
         };
         window.addEventListener("scroll", handleScroll);
         return () => window.removeEventListener("scroll", handleScroll);
-    }, []);
+    }, [lastScrollY]);
 
     const navItems = [
         { id: "/", label: "Home", desc: "Delta Energy" },
@@ -28,9 +40,9 @@ export function Navbar() {
     return (
         <motion.header
             initial={{ y: -100 }}
-            animate={{ y: 0 }}
-            transition={{ type: "spring", stiffness: 100, damping: 20 }}
-            className={`fixed top-4 left-0 right-0 z-50 flex justify-center px-4 transition-all duration-500`}
+            animate={{ y: isVisible ? 0 : -150 }}
+            transition={{ duration: 0.3, ease: "easeInOut" }}
+            className={`fixed top-4 left-0 right-0 z-50 flex justify-center px-4`}
         >
             <div
                 className={`w-full max-w-5xl rounded-full transition-all duration-300 overflow-hidden ${isScrolled

@@ -1,17 +1,17 @@
 import type { Metadata } from "next";
-import { Poppins, Open_Sans } from "next/font/google";
+import { Syne, Plus_Jakarta_Sans } from "next/font/google";
 import "./globals.css";
 import { Navbar } from "@/components/navbar";
 
-const poppins = Poppins({
+const syne = Syne({
   variable: "--font-heading",
-  weight: ["400", "500", "600", "700"],
+  weight: ["400", "500", "600", "700", "800"],
   subsets: ["latin"],
 });
 
-const openSans = Open_Sans({
+const plusJakartaSans = Plus_Jakarta_Sans({
   variable: "--font-sans",
-  weight: ["300", "400", "500", "600", "700"],
+  weight: ["400", "500", "600", "700"],
   subsets: ["latin"],
 });
 
@@ -28,7 +28,7 @@ export default function RootLayout({
   return (
     <html lang="en" className="scroll-smooth">
       <body
-        className={`${openSans.variable} ${poppins.variable} antialiased font-sans flex flex-col min-h-screen bg-background text-foreground`}
+        className={`${plusJakartaSans.variable} ${syne.variable} antialiased font-sans flex flex-col min-h-screen bg-background text-foreground tracking-tight`}
       >
         <Navbar />
         <main className="flex-1 pt-24 pb-12 flex flex-col relative z-0">
