@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { ArrowRight, ArrowLeft, Building2, Zap, LayoutDashboard, Settings2, Droplets, Activity, BarChart3, Save, Plus, Map, ShieldOff, FileText, Download, ChevronRight } from "lucide-react";
+import { ArrowRight, ArrowLeft, Building2, Zap, LayoutDashboard, Settings2, Droplets, Activity, BarChart3, Save, Plus, Map, ShieldOff, FileText, Download, ChevronRight, RotateCcw } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -373,8 +373,8 @@ const DEMO_DATA = {
         { m: 11, y1: "3680", y2: "4200" }, { m: 12, y1: "", y2: "" }
     ],
     spaces: [
-        { id: 1, typeCode: "B3 行政辦公大樓-一般辦公大樓(一般商辦、政府辦公、分租型辦公)", isIntermittent: true, area: "189.88" },
-        { id: 1772295921532, typeCode: "B4 行政辦公大樓-一般辦公大樓專用大或專用走廊休息區等次空間", isIntermittent: true, area: "157.50" }
+        { id: 1, typeCode: "B3", isIntermittent: true, area: "189.8" },
+        { id: 1772295921532, typeCode: "B4", isIntermittent: true, area: "157.5" }
     ],
     ac: [],
     lt: [],
@@ -382,7 +382,8 @@ const DEMO_DATA = {
         { id: 1772295957183, type: "normal", qty: "1", load: "800", speed: "60", year: "2020", hours: "2500" }
     ],
     exemptSpaces: [
-        { id: 501, typeCode: "N321", area: "393.69" }
+        { id: 502, typeCode: "N41", area: "217.4" },
+        { id: 501, typeCode: "N321", area: "176.3" }
     ],
     water: {
         towerHeight: "19.5",
@@ -458,33 +459,41 @@ export default function AssessmentPage() {
     const [op, setOp] = useState({ exhibitionOR: "", largeMeetingOR: "", smallMeetingOR: "", nationalTheaterOR: "", generalTheaterOR: "" });
     const setO = (k: string, v: string) => setOp(p => ({ ...p, [k]: v }));
 
+    const loadDemoData = (data: any) => {
+        setBasic(data.basic);
+        setMonthly(data.monthly);
+        setSpaces(data.spaces);
+        setAc(data.ac || data.acList || []);
+        setLt(data.lt || data.ltList || []);
+        setEl(data.el || data.elList || []);
+        setExemptSpaces(data.exemptSpaces || []);
+        setWater(data.water);
+    };
+
+    const resetToEmpty = () => {
+        setBasic({ companyName: "", buildingTypeCode: "", contactPerson: "", contactEmail: "", phone: "", totalFloorArea: "", groundFloors: "", basementFloors: "", address: "", startDay: "1", endDay: "5", startTime: "09:00", endTime: "18:00", allDay: false });
+        setMonthly(Array.from({ length: 12 }, (_, i) => ({ m: i + 1, y1: "", y2: "" })));
+        setSpaces([{ id: 1, typeCode: "", isIntermittent: true, area: "" }]);
+        setExemptSpaces([]);
+        setAc([]); setLt([]); setEl([]);
+        setWater({ towerHeight: "", annualUsage: "", toiletArea: "", toiletHours: "", restaurantType: "", restaurantArea: "", restaurantDays: "", hotWaterType: "" });
+        setResult(null);
+    };
+
     const handleToggleDemo = (checked: boolean) => {
         setIsDemoMode(checked);
         if (checked) {
-            // Priority: LocalStorage (Custom Demo) > Static DEMO_DATA
             const custom = localStorage.getItem("BERS2_CUSTOM_DEMO");
             const dataToUse = custom ? JSON.parse(custom) : DEMO_DATA;
-
-            setBasic(dataToUse.basic);
-            setMonthly(dataToUse.monthly);
-            setSpaces(dataToUse.spaces);
-            setAc(dataToUse.ac || dataToUse.acList || []);
-            setLt(dataToUse.lt || dataToUse.ltList || []);
-            setEl(dataToUse.el || dataToUse.elList || []);
-            setExemptSpaces(dataToUse.exemptSpaces || []);
-            setWater(dataToUse.water);
+            loadDemoData(dataToUse);
         } else {
-            // Reset to default
-            setBasic({ companyName: "", buildingTypeCode: "", contactPerson: "", contactEmail: "", phone: "", totalFloorArea: "", groundFloors: "", basementFloors: "", address: "", startDay: "1", endDay: "5", startTime: "09:00", endTime: "18:00", allDay: false });
-            setMonthly(Array.from({ length: 12 }, (_, i) => ({ m: i + 1, y1: "", y2: "" })));
-            setSpaces([{ id: 1, typeCode: "", isIntermittent: true, area: "" }]);
-            setExemptSpaces([]);
-            setAc([]);
-            setLt([]);
-            setEl([]);
-            setWater({ towerHeight: "", annualUsage: "", toiletArea: "", toiletHours: "", restaurantType: "", restaurantArea: "", restaurantDays: "", hotWaterType: "" });
-            setResult(null);
+            resetToEmpty();
         }
+    };
+
+    const resetDemoToDefault = () => {
+        localStorage.removeItem("BERS2_CUSTOM_DEMO");
+        loadDemoData(DEMO_DATA);
     };
 
     const saveAsDemo = () => {
@@ -499,8 +508,7 @@ export default function AssessmentPage() {
             water
         };
         localStorage.setItem("BERS2_CUSTOM_DEMO", JSON.stringify(data));
-        console.log("NEW_DEMO_DATA:", JSON.stringify(data, null, 2));
-        alert("目前的表單內容已儲存為本機 Demo！之後啟動 DEMO MODE 會優先載入此內容。\n\n完整的 JSON 也已輸出到 Console (F12)，如有需要可複製給 AI 更新。");
+        alert("目前的內容已儲存！之後點擊重新整理或開啟 DEMO MODE 都會直接看到這個版本。");
     };
 
     const currentIndex = steps.findIndex(s => s.id === activeTab);
@@ -1064,8 +1072,17 @@ export default function AssessmentPage() {
                     {isDemoMode && (
                         <>
                             <div className="h-5 w-[1px] bg-white/10 mx-1" />
-                            <div className="text-[10px] font-medium text-sky-400/80 tracking-tight animate-pulse px-1">
-                                示範模式：數據已載入
+                            <div className="flex items-center gap-3 px-1">
+                                <div className="text-[10px] font-medium text-sky-400/80 tracking-tight whitespace-nowrap">
+                                    數據已載入
+                                </div>
+                                <Button
+                                    onClick={resetDemoToDefault}
+                                    variant="ghost"
+                                    className="h-7 px-2 text-[9px] font-bold text-zinc-500 hover:text-white hover:bg-white/5 flex items-center gap-1"
+                                >
+                                    <RotateCcw className="w-3 h-3" /> 重設
+                                </Button>
                             </div>
                         </>
                     )}
