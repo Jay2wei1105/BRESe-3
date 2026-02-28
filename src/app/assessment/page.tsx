@@ -119,18 +119,66 @@ export default function AssessmentPage() {
     const handlePrev = () => { if (currentIndex > 0) setActiveTab(steps[currentIndex - 1].id); };
 
     const calculate = () => {
-        const totalElec = monthly.reduce((s, r) => s + (Number(r.y1) || 0), 0);
+        // 年總耗電量：取 2 年平均（對照 Excel 電費單資料）
+        const te_y1 = monthly.reduce((s, r) => s + (Number(r.y1) || 0), 0);
+        const te_y2 = monthly.reduce((s, r) => s + (Number(r.y2) || 0), 0);
+
         const input: AssessmentInput = {
-            buildingName: basic.companyName, buildingAddress: basic.address, location: "",
-            totalFloorArea: Number(basic.totalFloorArea), floorsAbove: Number(basic.groundFloors),
-            floorsBelow: Number(basic.basementFloors), buildingType: basic.buildingTypeCode,
-            totalElectricityTE: totalElec, otherSpecialPowerEe: 0,
+            buildingName: basic.companyName,
+            buildingAddress: basic.address,
+            location: basic.address, // 地址用於 UR 查表（ideally 應傳行政區）
+            buildingType: basic.buildingTypeCode,
+            totalFloorArea: Number(basic.totalFloorArea),
+            floorsAbove: Number(basic.groundFloors),
+            floorsBelow: Number(basic.basementFloors),
+
+            // 用電量（2年平均）
+            totalElectricityTE: te_y1,
+            totalElectricityTE_y2: te_y2 > 0 ? te_y2 : undefined,
+            otherSpecialPowerEe: 0,
+
+            // 用水
             waterUsage: Number(water.annualUsage) || 0,
-            energyZones: spaces.map(s => ({ code: s.typeCode, area: Number(s.area), isIntermittent: s.isIntermittent, isWaterCooled: false })),
-            exemptZones: [], equipment: { elevators: elList.length, pumps: 0, heating: 0 }
+            waterInput: {
+                towerHeight: Number(water.towerHeight) || 0,
+                annualUsage: Number(water.annualUsage) || 0,
+                toiletArea: Number(water.toiletArea) || 0,
+                toiletHours: Number(water.toiletHours) || 0,
+                rainwaterRecovery: 0,
+            },
+
+            // 熱水
+            hotWaterInput: {
+                type: (water.hotWaterType as 'electric' | 'heatpump' | 'none') || 'none',
+                restaurantArea: Number(water.restaurantArea) || 0,
+                restaurantDays: Number(water.restaurantDays) || 0,
+                restaurantServiceType: 'none',
+            },
+
+            // 評估分區
+            energyZones: spaces.map(s => ({
+                code: s.typeCode,
+                area: Number(s.area),
+                isIntermittent: s.isIntermittent,
+                isWaterCooled: false,
+            })),
+
+            // 免評估分區（TODO：待串接免評估分區輸入）
+            exemptZones: [],
+
+            // 電梯設備（對照 填表!U3 公式）
+            elevators: elList.map(el => ({
+                load: Number(el.load) || 0,
+                speed: Number(el.speed) || 0,
+                qty: Number(el.qty) || 1,
+                type: el.type === 'highspeed' ? 'vfd' : 'normal' as any,
+                hours: Number(el.hours) || 2500,
+            })),
         };
+
         setResult(calculateBERSe(input));
     };
+
 
     const handleComplete = async () => { calculate(); setIsSubmitting(true); setTimeout(() => setIsSubmitting(false), 1500); };
 
@@ -462,10 +510,18 @@ export default function AssessmentPage() {
                                                 </div>
                                                 <div className="space-y-3">
                                                     <p className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest mb-4">能效基準值 (EUI)</p>
-                                                    <div className="flex justify-between items-center p-3 rounded-xl bg-emerald-500/5 border border-emerald-500/10"><span className="text-xs text-emerald-400">Min (1級)</span><span className="font-mono text-sm text-emerald-300">{result.benchmarks.min}</span></div>
-                                                    <div className="flex justify-between items-center p-3 rounded-xl bg-sky-500/5 border border-sky-500/10"><span className="text-xs text-sky-400">Median (4級)</span><span className="font-mono text-sm text-sky-300">{result.benchmarks.g}</span></div>
-                                                    <div className="flex justify-between items-center p-3 rounded-xl bg-red-500/5 border border-red-500/10"><span className="text-xs text-red-400">Max (7級)</span><span className="font-mono text-sm text-red-300">{result.benchmarks.max}</span></div>
-                                                    <div className="pt-3"><Button variant="outline" className="w-full rounded-xl border-white/5 bg-white/[0.03] hover:bg-white/[0.06] text-zinc-400 h-11 text-sm font-medium transition-all"><Save size={14} className="mr-2" /> 下載報告</Button></div>
+                                                    <div className="flex justify-between items-center p-3 rounded-xl bg-emerald-500/5 border border-emerald-500/10"><span className="text-xs text-emerald-400">EUImin (1+級)</span><span className="font-mono text-sm text-emerald-300">{result.benchmarks.min}</span></div>
+                                                    <div className="flex justify-between items-center p-3 rounded-xl bg-sky-500/5 border border-sky-500/10"><span className="text-xs text-sky-400">EUIg / GB基準</span><span className="font-mono text-sm text-sky-300">{result.benchmarks.g}</span></div>
+                                                    <div className="flex justify-between items-center p-3 rounded-xl bg-zinc-700/20 border border-white/[0.05]"><span className="text-xs text-zinc-400">EUIm 中位值</span><span className="font-mono text-sm text-zinc-300">{result.benchmarks.m}</span></div>
+                                                    <div className="flex justify-between items-center p-3 rounded-xl bg-red-500/5 border border-red-500/10"><span className="text-xs text-red-400">EUImax (7級)</span><span className="font-mono text-sm text-red-300">{result.benchmarks.max}</span></div>
+                                                    <div className="flex justify-between items-center p-2.5 rounded-xl bg-white/[0.02] border border-white/[0.04]"><span className="text-xs text-zinc-500">EUI' 主設備</span><span className="font-mono text-xs text-zinc-400">{result.euiPrime}</span></div>
+                                                    <div className="pt-1 space-y-1.5">
+                                                        <p className="text-[10px] font-bold text-zinc-600 uppercase tracking-widest">免評估設備 (kWh/yr)</p>
+                                                        <div className="flex justify-between text-xs px-1"><span className="text-zinc-600">Et 電梯</span><span className="font-mono text-zinc-500">{result.Et}</span></div>
+                                                        <div className="flex justify-between text-xs px-1"><span className="text-zinc-600">Ep 揚水</span><span className="font-mono text-zinc-500">{result.Ep}</span></div>
+                                                        <div className="flex justify-between text-xs px-1"><span className="text-zinc-600">Eh 熱水</span><span className="font-mono text-zinc-500">{result.Eh}</span></div>
+                                                    </div>
+                                                    <div className="pt-2"><Button variant="outline" className="w-full rounded-xl border-white/5 bg-white/[0.03] hover:bg-white/[0.06] text-zinc-400 h-11 text-sm font-medium transition-all"><Save size={14} className="mr-2" /> 下載報告</Button></div>
                                                 </div>
                                             </div>
                                         ) : (
