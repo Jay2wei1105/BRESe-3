@@ -216,12 +216,12 @@ export default function AssessmentPage() {
                                         <SectionHeader icon={Zap} title="電費資料（2年）" />
                                         <div className="rounded-xl overflow-hidden border border-white/[0.06]">
                                             <div className="grid grid-cols-[140px_1fr_1fr] bg-zinc-800/50 border-b border-white/[0.06]">
-                                                <div className="py-3 px-4 text-[12px] text-zinc-500 font-medium">月</div>
-                                                <div className="py-2 px-3 border-l border-white/[0.06]">
-                                                    <Select value={yr1} onValueChange={setYr1}><SelectTrigger className="h-8 bg-transparent border-0 text-zinc-300 text-sm p-0 shadow-none focus:ring-0"><SelectValue /></SelectTrigger><SelectContent className={SC}>{[2025, 2024, 2023, 2022, 2021].map(y => <SelectItem key={y} value={String(y)}>{y}</SelectItem>)}</SelectContent></Select>
+                                                <div className="py-3 px-4 text-[12px] text-zinc-500 font-medium flex items-center">月</div>
+                                                <div className="flex items-center px-3 border-l border-white/[0.06]">
+                                                    <Select value={yr1} onValueChange={setYr1}><SelectTrigger className="h-11 w-full bg-transparent dark:bg-transparent dark:hover:bg-transparent border-0 text-zinc-300 text-sm shadow-none focus:ring-0"><SelectValue /></SelectTrigger><SelectContent className={SC}>{[2025, 2024, 2023, 2022, 2021].map(y => <SelectItem key={y} value={String(y)}>{y}</SelectItem>)}</SelectContent></Select>
                                                 </div>
-                                                <div className="py-2 px-3 border-l border-white/[0.06]">
-                                                    <Select value={yr2} onValueChange={setYr2}><SelectTrigger className="h-8 bg-transparent border-0 text-zinc-300 text-sm p-0 shadow-none focus:ring-0"><SelectValue /></SelectTrigger><SelectContent className={SC}>{[2025, 2024, 2023, 2022, 2021].map(y => <SelectItem key={y} value={String(y)}>{y}</SelectItem>)}</SelectContent></Select>
+                                                <div className="flex items-center px-3 border-l border-white/[0.06]">
+                                                    <Select value={yr2} onValueChange={setYr2}><SelectTrigger className="h-11 w-full bg-transparent dark:bg-transparent dark:hover:bg-transparent border-0 text-zinc-300 text-sm shadow-none focus:ring-0"><SelectValue /></SelectTrigger><SelectContent className={SC}>{[2025, 2024, 2023, 2022, 2021].map(y => <SelectItem key={y} value={String(y)}>{y}</SelectItem>)}</SelectContent></Select>
                                                 </div>
                                             </div>
                                             {monthly.map((row, idx) => (
@@ -488,16 +488,16 @@ export default function AssessmentPage() {
                                 <ArrowLeft className="mr-2 w-4 h-4" /> 返回上一步
                             </Button>
                             {currentIndex === steps.length - 2 ? (
-                                <Button onClick={handleComplete} disabled={isSubmitting} className="h-9 px-6 rounded-lg bg-sky-900 hover:bg-sky-800 text-white font-medium text-sm border border-sky-500/20 shadow-[0_0_20px_rgba(7,89,133,0.25)] transition-all disabled:opacity-50">
+                                <Button variant="ghost" onClick={handleComplete} disabled={isSubmitting} className="h-9 px-4 text-sm font-medium text-zinc-500 hover:text-zinc-200 hover:bg-white/5 rounded-lg transition-all disabled:opacity-50">
                                     {isSubmitting ? "計算中..." : <><Activity className="mr-2 w-4 h-4" />開始能效計算</>}
                                 </Button>
                             ) : currentIndex === steps.length - 1 ? (
-                                <Button onClick={() => window.location.href = "/"} className="h-9 px-6 rounded-lg bg-zinc-100 hover:bg-white text-zinc-900 font-medium text-sm transition-all">
+                                <Button variant="ghost" onClick={() => window.location.href = "/"} className="h-9 px-4 text-sm font-medium text-zinc-500 hover:text-zinc-200 hover:bg-white/5 rounded-lg transition-all">
                                     <Building2 className="mr-2 w-4 h-4" /> 返回首頁
                                 </Button>
                             ) : (
-                                <Button onClick={handleNext} className="h-9 px-6 rounded-lg bg-zinc-100 hover:bg-white text-zinc-900 font-medium text-sm transition-all flex items-center gap-2">
-                                    下個階段 <ArrowRight className="w-4 h-4" />
+                                <Button variant="ghost" onClick={handleNext} className="h-9 px-4 text-sm font-medium text-zinc-500 hover:text-zinc-200 hover:bg-white/5 rounded-lg transition-all">
+                                    下個階段 <ArrowRight className="ml-2 w-4 h-4" />
                                 </Button>
                             )}
                         </div>
