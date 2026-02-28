@@ -48,63 +48,67 @@
 }
 
 :root {
-  /* Friendly modern SaaS radii */
-  --radius: 1rem;
+  /* Minimalist luxury radii */
+  --radius: 0.5rem;
 
-  /* Core palette: UI-UX Pro Max Colorful SaaS */
-  --background: #F8FAFC;
-  /* Slate 50 - Very light tech gray-white */
-  --foreground: #0F172A;
-  /* Slate 900 - Deep slate for text */
+  /* Core palette: Sophisticated Dark Japanese Aesthetics */
+  --background: #09090b;
+  /* Zinc 950 - Extremely deep dark for negative space */
+  --foreground: #fafafa;
+  /* Off-white for stark contrast */
 
-  --card: rgba(255, 255, 255, 0.85);
-  /* Glass base */
-  --card-foreground: #0F172A;
+  --card: rgba(24, 24, 27, 0.4);
+  /* Zinc 900 with extreme transparency for glass effect */
+  --card-foreground: #fafafa;
 
-  --popover: #FFFFFF;
-  --popover-foreground: #0F172A;
+  --popover: #18181b;
+  --popover-foreground: #fafafa;
 
   /* Accents */
-  --primary: #0D9488;
-  /* Teal 600 - High-tech blue/green vibe */
-  --primary-foreground: #FFFFFF;
+  --primary: #075985;
+  /* Sky 800 - requested premium deep blue */
+  --primary-foreground: #ffffff;
 
-  --secondary: #CCFBF1;
-  /* Teal 50 - Soft background for secondary actions */
-  --secondary-foreground: #0D9488;
-  /* Teal 600 text on secondary */
+  --secondary: #27272a;
+  /* Zinc 800 - quiet surfaces */
+  --secondary-foreground: #e4e4e7;
+  /* Zinc 200 */
 
-  --muted: #F1F5F9;
-  /* Slate 100 */
-  --muted-foreground: #64748B;
-  /* Slate 500 */
+  --muted: #18181b;
+  /* Zinc 900 for subdued background layers */
+  --muted-foreground: #a1a1aa;
+  /* Zinc 400 */
 
-  --accent: #3B82F6;
-  /* Blue 500 - Bright pop of blue for secondary accents */
-  --accent-foreground: #FFFFFF;
+  --accent: #27272a;
+  /* Zinc 800 */
+  --accent-foreground: #fafafa;
+  /* Bright white accent text */
 
-  --destructive: #EF4444;
-  --border: rgba(15, 23, 42, 0.08);
-  /* Transparent slate border */
-  --input: rgba(15, 23, 42, 0.06);
-  --ring: #0D9488;
-  /* Teal focus rings */
+  --destructive: #7f1d1d;
+  /* Deep red for high-end look */
+  --border: rgba(255, 255, 255, 0.1);
+  /* Very subtle hairline borders */
+  --input: rgba(255, 255, 255, 0.05);
+  /* Deep transparent input */
+  --ring: rgba(7, 89, 133, 0.5);
+  /* Sky 800 focus ring */
 
-  --chart-1: #0D9488;
-  --chart-2: #0891B2;
-  --chart-3: #3B82F6;
-  --chart-4: #8B5CF6;
-  --chart-5: #F59E0B;
+  --chart-1: #075985;
+  --chart-2: #38bdf8;
+  --chart-3: #a1a1aa;
+  --chart-4: #52525b;
+  --chart-5: #e4e4e7;
 
-  --sidebar: #F8FAFC;
-  --sidebar-foreground: #0F172A;
-  --sidebar-primary: #0D9488;
-  --sidebar-primary-foreground: #FFFFFF;
-  --sidebar-accent: #F0FDFA;
-  --sidebar-accent-foreground: #0D9488;
-  --sidebar-border: rgba(15, 23, 42, 0.06);
-  --sidebar-ring: #0D9488;
+  --sidebar: #09090b;
+  --sidebar-foreground: #fafafa;
+  --sidebar-primary: #075985;
+  --sidebar-primary-foreground: #ffffff;
+  --sidebar-accent: #18181b;
+  --sidebar-accent-foreground: #fafafa;
+  --sidebar-border: rgba(255, 255, 255, 0.08);
+  --sidebar-ring: #075985;
 }
+
 
 @layer base {
   * {

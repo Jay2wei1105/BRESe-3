@@ -9,7 +9,7 @@ import { Menu, X, ArrowRight } from "lucide-react";
 export function Navbar() {
     const pathname = usePathname();
     const [isScrolled, setIsScrolled] = useState(false);
-    const [isVisible, setIsVisible] = useState(true);
+    const [scrollDirection, setScrollDirection] = useState<"up" | "down">("up");
     const [lastScrollY, setLastScrollY] = useState(0);
     const [isMenuOpen, setIsMenuOpen] = useState(false);
 
@@ -18,16 +18,16 @@ export function Navbar() {
             const currentScrollY = window.scrollY;
             setIsScrolled(currentScrollY > 50);
 
-            if (currentScrollY > lastScrollY && currentScrollY > 100) {
+            if (currentScrollY > lastScrollY && currentScrollY > 50) {
                 // Scrolling down
-                setIsVisible(false);
-            } else {
+                setScrollDirection("down");
+            } else if (currentScrollY < lastScrollY) {
                 // Scrolling up
-                setIsVisible(true);
+                setScrollDirection("up");
             }
             setLastScrollY(currentScrollY);
         };
-        window.addEventListener("scroll", handleScroll);
+        window.addEventListener("scroll", handleScroll, { passive: true });
         return () => window.removeEventListener("scroll", handleScroll);
     }, [lastScrollY]);
 
@@ -40,14 +40,16 @@ export function Navbar() {
     return (
         <motion.header
             initial={{ y: -100 }}
-            animate={{ y: isVisible ? 0 : -150 }}
+            animate={{ y: 0 }}
             transition={{ duration: 0.3, ease: "easeInOut" }}
             className={`fixed top-4 left-0 right-0 z-50 flex justify-center px-4`}
         >
             <div
-                className={`w-full max-w-5xl rounded-full transition-all duration-300 overflow-hidden ${isScrolled
-                    ? "bg-popover/80 backdrop-blur-xl border border-border shadow-[0_8px_30px_rgb(0,0,0,0.04)]"
-                    : "bg-transparent border border-transparent"
+                className={`w-full max-w-5xl rounded-full transition-all duration-300 overflow-hidden ${!isScrolled
+                    ? "bg-transparent border border-transparent"
+                    : scrollDirection === "down"
+                        ? "bg-background/20 backdrop-blur-md border border-border/20 shadow-sm"
+                        : "bg-background/60 backdrop-blur-xl border border-border shadow-[0_8px_30px_rgb(0,0,0,0.04)]"
                     }`}
             >
                 <div className="flex items-center justify-between px-6 py-4">
@@ -65,14 +67,14 @@ export function Navbar() {
                                 <Link
                                     key={item.id}
                                     href={item.id}
-                                    className={`relative text-sm font-medium transition-colors ${isActive ? "text-primary" : "text-muted-foreground hover:text-foreground"
+                                    className={`relative text-sm font-medium transition-colors ${isActive ? "text-sky-800" : "text-muted-foreground hover:text-foreground"
                                         }`}
                                 >
                                     {item.label}
                                     {isActive && (
                                         <motion.div
                                             layoutId="nav-indicator"
-                                            className="absolute -bottom-1.5 left-0 right-0 h-0.5 bg-primary rounded-full"
+                                            className="absolute -bottom-1.5 left-0 right-0 h-0.5 bg-sky-800 rounded-full"
                                         />
                                     )}
                                 </Link>
@@ -105,7 +107,7 @@ export function Navbar() {
                                         href={item.id}
                                         onClick={() => setIsMenuOpen(false)}
                                         className={`flex items-center justify-between p-3 rounded-lg text-sm font-medium ${pathname === item.id
-                                            ? "bg-primary/20 text-primary"
+                                            ? "bg-sky-800/20 text-sky-800"
                                             : "text-muted-foreground hover:bg-white/5 hover:text-foreground"
                                             }`}
                                     >

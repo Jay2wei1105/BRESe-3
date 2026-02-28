@@ -1,17 +1,17 @@
 import type { Metadata } from "next";
-import { Syne, Plus_Jakarta_Sans } from "next/font/google";
+import { Noto_Serif_JP, Noto_Sans_JP } from "next/font/google";
 import "./globals.css";
 import { Navbar } from "@/components/navbar";
 
-const syne = Syne({
+const notoSerifJP = Noto_Serif_JP({
   variable: "--font-heading",
-  weight: ["400", "500", "600", "700", "800"],
+  weight: ["400", "500", "600", "700"],
   subsets: ["latin"],
 });
 
-const plusJakartaSans = Plus_Jakarta_Sans({
+const notoSansJP = Noto_Sans_JP({
   variable: "--font-sans",
-  weight: ["400", "500", "600", "700"],
+  weight: ["300", "400", "500", "700"],
   subsets: ["latin"],
 });
 
@@ -26,12 +26,20 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className="scroll-smooth">
+    <html lang="en" className="scroll-smooth dark">
       <body
-        className={`${plusJakartaSans.variable} ${syne.variable} antialiased font-sans flex flex-col min-h-screen bg-background text-foreground tracking-tight`}
+        className={`${notoSansJP.variable} ${notoSerifJP.variable} antialiased font-sans flex flex-col min-h-screen bg-background text-foreground tracking-tight`}
       >
+        {/* High-End Architectural / Grid Background (Global) */}
+        <div className="fixed inset-0 z-0 pointer-events-none">
+          <div className="absolute inset-0 bg-[linear-gradient(to_right,#ffffff05_1px,transparent_1px),linear-gradient(to_bottom,#ffffff05_1px,transparent_1px)] bg-[size:4rem_4rem] [mask-image:radial-gradient(ellipse_80%_60%_at_50%_0%,#000_60%,transparent_100%)]" />
+          <div className="absolute top-[-10%] right-[-5%] w-[600px] h-[600px] bg-sky-900/20 rounded-full blur-[120px] mix-blend-screen" />
+          <div className="absolute bottom-0 left-[-10%] w-[500px] h-[500px] bg-zinc-800/50 rounded-full blur-[150px] mix-blend-screen" />
+          <div className="absolute inset-0 bg-[url('/noise.png')] opacity-[0.03] mix-blend-overlay" />
+        </div>
+
         <Navbar />
-        <main className="flex-1 pt-24 pb-12 flex flex-col relative z-0">
+        <main className="flex-1 pt-24 pb-12 flex flex-col relative z-10">
           {children}
         </main>
       </body>
