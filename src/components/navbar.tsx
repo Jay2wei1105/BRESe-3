@@ -33,10 +33,9 @@ export function Navbar() {
     }, [lastScrollY]);
 
     const navItems = [
-        { id: "/", label: "Home", desc: "Delta Energy" },
-        { id: "/assessment", label: "BERS Assessment", desc: "Start Evaluation" },
-        { id: "/analytics", label: "Neural Analytics", desc: "Cyber Visualization" },
-        { id: "/dashboard", label: "Executive Info", desc: "Summary" },
+        { id: "/", label: "首頁", desc: "Delta Energy" },
+        { id: "/assessment", label: "BERSe 填表", desc: "Start Evaluation" },
+        { id: "/analytics", label: "建築能效分析", desc: "Cyber Visualization" },
     ];
 
     return (

@@ -115,6 +115,7 @@ export interface CalculationResult {
     euiPrime: number;   // 主設備耗電密度 EUI'
     score: number;      // 能效得分 SCORE
     grade: string;      // 能效等級
+    isDiamond?: boolean; // 是否符合鑽石級
 
     // 中間值（供對照 Excel）
     Et: number;         // 電梯耗電 kWh/yr

@@ -26,7 +26,6 @@ const steps = [
     { id: "equipment", label: "設備資料", icon: Settings2 },
     { id: "water", label: "水資料", icon: Droplets },
     { id: "operation", label: "營運率資料", icon: Activity },
-    { id: "result", label: "初步結果", icon: BarChart3 },
 ];
 
 const INP = "h-12 w-full rounded-xl bg-zinc-800/50 border border-white/[0.06] text-zinc-100 placeholder:text-zinc-600 text-sm px-4 focus:outline-none focus:border-sky-500/40 focus:bg-zinc-800 transition-all shadow-none";
@@ -59,293 +58,6 @@ function SubHead({ title, onAdd }: { title: string; onAdd?: () => void }) {
     );
 }
 
-function SummaryReport({ result, basic }: { result: CalculationResult; basic: any }) {
-    return (
-        <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500 max-w-6xl mx-auto pb-20">
-            {/* Header */}
-            <div className="flex items-center justify-between pb-6 border-b border-white/10">
-                <div>
-                    <h1 className="text-3xl font-black text-white tracking-tight">BERSe 評估總表</h1>
-                    <p className="text-zinc-500 text-sm mt-1">建築能效評估完整數據報告 — {basic.companyName}</p>
-                </div>
-                <Button className="h-10 px-6 rounded-xl bg-sky-600 hover:bg-sky-500 text-white font-bold text-sm shadow-lg shadow-sky-600/20"><Download size={16} className="mr-2" /> 下載報告</Button>
-            </div>
-
-            {/* 一、建築物及空調基本資料 */}
-            <ReportSection title="一、建築物及空調基本資料" icon={FileText} count={13}>
-                <div className="border border-white/10 rounded-xl overflow-hidden divide-y divide-white/5">
-                    <ReportRowG label="建築物名稱" value={basic.companyName} />
-                    <ReportRowG label="建築物地址" value={basic.address} />
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 divide-x divide-white/5">
-                        <ReportRowI label="總樓地板面積" value={basic.totalFloorArea} unit="m²" />
-                        <ReportRowI label="評估樓地板面積" value={result.AFe} unit="m²" />
-                        <ReportRowI label="地上總樓層數" value={basic.groundFloors} unit="層" />
-                        <ReportRowI label="地下總樓層數" value={basic.basementFloors} unit="層" />
-                    </div>
-                    <div className="grid grid-cols-1 md:grid-cols-2 divide-x divide-white/5">
-                        <ReportRowI label="實際年總耗電量" value={result.reliability.totalTE} unit="kWh/yr" />
-                        <ReportRowI label="雨中水年利用量" value="-" unit="m³" />
-                    </div>
-                    <div className="grid grid-cols-1 md:grid-cols-2 divide-x divide-white/5">
-                        <ReportRowI label="其他特殊用電" value="0" unit="kWh/yr" />
-                        <ReportRowI label="城鄉係數" value={result.UR} unit="" />
-                    </div>
-                </div>
-            </ReportSection>
-
-            {/* 二、用電信賴度檢驗 */}
-            <ReportSection title="二、用電信賴度檢驗" icon={Activity} count={3}>
-                <div className="border border-white/10 rounded-xl overflow-hidden divide-y divide-white/5">
-                    <div className="bg-zinc-900/50 p-4 flex justify-between items-center group">
-                        <span className="text-zinc-400 text-sm">年總耗電量</span>
-                        <div className="flex items-center gap-4">
-                            <span className="text-zinc-100 font-mono font-bold text-lg">{result.reliability.totalTE.toLocaleString()}</span>
-                            <span className="text-zinc-600 text-xs">(kWh/yr)</span>
-                        </div>
-                    </div>
-                    <div className="grid grid-cols-1 md:grid-cols-2 divide-x divide-white/5">
-                        <ReportRowReliability label="日平均用電量之最大月用電量變動率" valid={result.reliability.isMonthlyValid} value={result.reliability.monthlyMaxVariation} threshold="合格 < 50%" />
-                        <ReportRowReliability label="日平均用電量之年變動率" valid={result.reliability.isYearlyValid} value={result.reliability.yearlyVariation} threshold="合格 < 15%" />
-                    </div>
-                </div>
-            </ReportSection>
-
-            {/* 三、BERSe免評估分區資料 */}
-            <ReportSection title="三、BERSe免評估分區資料" icon={ShieldOff} count={result.exemptZoneDetails.length}>
-                <div className="border border-white/10 rounded-xl overflow-hidden relative">
-                    <table className="w-full text-left text-sm">
-                        <thead className="bg-zinc-800 text-zinc-400 text-[10px] uppercase font-bold tracking-widest border-b border-white/10">
-                            <tr>
-                                <th className="px-6 py-3">免評估分區</th>
-                                <th className="px-6 py-3 text-center">面積 (m²)</th>
-                                <th className="px-6 py-3 text-center">年耗電量計算公式 (kWh/yr)</th>
-                                <th className="px-6 py-3 text-right">年耗電量 (kWh/yr)</th>
-                            </tr>
-                        </thead>
-                        <tbody className="divide-y divide-white/5">
-                            {result.exemptZoneDetails.map((z, i) => (
-                                <tr key={i} className="hover:bg-white/5 transition-colors">
-                                    <td className="px-6 py-4 text-zinc-300 font-medium">{z.name}</td>
-                                    <td className="px-6 py-4 text-center text-zinc-400 font-mono">{z.area}</td>
-                                    <td className="px-6 py-4 text-center text-zinc-500 font-mono italic">{z.formula}</td>
-                                    <td className="px-6 py-4 text-right text-zinc-200 font-bold font-mono">{z.energy.toLocaleString()}</td>
-                                </tr>
-                            ))}
-                            {result.exemptZoneDetails.length === 0 && (
-                                <tr><td colSpan={4} className="px-6 py-10 text-center text-zinc-600 text-sm italic">無免評估分區數據</td></tr>
-                            )}
-                        </tbody>
-                        <tfoot className="bg-zinc-900/80 font-bold text-zinc-200 border-t border-white/10">
-                            <tr>
-                                <td className="px-6 py-4">免評估分區總面積</td>
-                                <td className="px-6 py-4 text-center font-mono text-zinc-100">{result.AFn}</td>
-                                <td className="px-6 py-4 text-center text-zinc-500">免評估分區總年耗電量</td>
-                                <td className="px-6 py-4 text-right font-mono text-xl text-sky-400">{result.EN.toLocaleString()}</td>
-                            </tr>
-                        </tfoot>
-                    </table>
-                </div>
-            </ReportSection>
-
-            {/* 四、BERSe耗能分區資料 */}
-            <ReportSection title="四、BERSe耗能分區資料" icon={LayoutDashboard} count={result.energyZoneDetails.length}>
-                <div className="border border-white/10 rounded-xl overflow-hidden relative">
-                    <div className="overflow-x-auto">
-                        <table className="w-full text-left text-[11px]">
-                            <thead className="bg-zinc-800 text-zinc-400 uppercase font-black tracking-widest border-b border-white/10">
-                                <tr>
-                                    <th className="px-4 py-3 min-w-[120px]">耗能分區</th>
-                                    <th className="px-4 py-3 text-center">面積 (m²)</th>
-                                    <th className="px-4 py-3 text-center">AEUIm</th>
-                                    <th className="px-4 py-3 text-center">LEUIm</th>
-                                    <th className="px-4 py-3 text-center">EEUIm</th>
-                                    <th className="px-4 py-3 text-center">城鄉數 UR</th>
-                                    <th className="px-4 py-3 text-center">空間營運率</th>
-                                    <th className="px-4 py-3 text-right">年耗電量</th>
-                                </tr>
-                            </thead>
-                            <tbody className="divide-y divide-white/5">
-                                {result.energyZoneDetails.map((z, i) => (
-                                    <tr key={i} className="hover:bg-white/5 transition-colors">
-                                        <td className="px-4 py-3 text-zinc-300 font-bold">{z.name}</td>
-                                        <td className="px-4 py-3 text-center text-zinc-400 font-mono">{z.area}</td>
-                                        <td className="px-4 py-3 text-center text-zinc-500 font-mono">{z.aeui}</td>
-                                        <td className="px-4 py-3 text-center text-zinc-500 font-mono">{z.leui}</td>
-                                        <td className="px-4 py-3 text-center text-zinc-500 font-mono">{z.eeui}</td>
-                                        <td className="px-4 py-3 text-center text-zinc-500 font-mono">{z.ur}</td>
-                                        <td className="px-4 py-3 text-center text-zinc-500 font-mono">{z.sori}</td>
-                                        <td className="px-4 py-3 text-right text-zinc-200 font-bold font-mono">{z.energy.toLocaleString()}</td>
-                                    </tr>
-                                ))}
-                            </tbody>
-                            <tfoot className="bg-zinc-900 font-bold text-zinc-200 border-t border-white/10">
-                                <tr>
-                                    <td className="px-4 py-2">耗能分區總年耗電量</td>
-                                    <td colSpan={7} className="px-4 py-2 text-right font-mono text-zinc-100">{(result.energyZoneDetails.reduce((s, z) => s + z.energy, 0)).toFixed(0)} kWh/yr</td>
-                                </tr>
-                            </tfoot>
-                        </table>
-                    </div>
-                </div>
-
-                <div className="grid grid-cols-1 md:grid-cols-2 mt-4 gap-4">
-                    <div className="bg-zinc-900/50 border border-white/5 rounded-xl p-4 divide-y divide-white/5">
-                        <ReportSummaryItem label="實際年總耗電量" value={result.reliability.totalTE} unit="kWh/yr" />
-                        <ReportSummaryItem label="輸送設備年耗電量 (Et)" value={result.Et} unit="kWh/yr" />
-                        <ReportSummaryItem label="揚水設備年耗電量 (Ep)" value={result.Ep} unit="kWh/yr" />
-                        <ReportSummaryItem label="加熱設備年耗電量 (Eh)" value={result.Eh} unit="kWh/yr" />
-                        <ReportSummaryItem label="其他特殊用電量 (Ee)" value="0" unit="kWh/yr" />
-                    </div>
-                    <div className="bg-sky-500/5 border border-sky-500/10 rounded-xl p-4 flex flex-col justify-center gap-4">
-                        <div className="flex justify-between items-center group">
-                            <span className="text-zinc-500 text-xs font-bold uppercase tracking-widest">總耗電密度 TEUI</span>
-                            <span className="text-zinc-100 font-mono font-black text-2xl group-hover:text-sky-400 transition-colors">{result.teui} <span className="text-[10px] text-zinc-600 ml-1">kWh/(m².yr)</span></span>
-                        </div>
-                        <div className="flex justify-between items-center group">
-                            <span className="text-zinc-500 text-xs font-bold uppercase tracking-widest">主設備用電密度 EUI'</span>
-                            <span className="text-zinc-100 font-mono font-black text-2xl group-hover:text-sky-400 transition-colors">{result.euiPrime} <span className="text-[10px] text-zinc-600 ml-1">kWh/(m².yr)</span></span>
-                        </div>
-                    </div>
-                </div>
-            </ReportSection>
-
-            {/* 五、能效指標 */}
-            <ReportSection title="五、能效指標" icon={BarChart3} count={7}>
-                <div className="border border-white/10 rounded-xl overflow-hidden divide-y divide-white/10 shadow-2xl shadow-black/50">
-                    <div className="grid grid-cols-1 md:grid-cols-2 divide-x divide-white/10">
-                        <ReportRowI label="EUI 最小值" value={result.benchmarks.min} unit="kWh/(m².yr)" />
-                        <ReportRowI label="EUI GB 基準值" value={result.benchmarks.g} unit="kWh/(m².yr)" />
-                    </div>
-                    <div className="grid grid-cols-1 md:grid-cols-2 divide-x divide-white/10">
-                        <ReportRowI label="EUI 中位值" value={result.benchmarks.m} unit="kWh/(m².yr)" />
-                        <ReportRowI label="EUI 最大值" value={result.benchmarks.max} unit="kWh/(m².yr)" />
-                    </div>
-                    <ReportRowLarge label="耗電密度差距 ΔEUI" value={result.deltaEui} unit="kWh/(m².yr)" detail="EUI' − SOR加權標準值" />
-                    <ReportRowLarge label="耗電密度指標 EUI*" value={result.euiAdj} unit="kWh/(m².yr)" detail="EUIm + ΔEUI" />
-                    <ReportRowLarge label="碳排密度指標 CEI*" value={(result.euiAdj * 0.495).toFixed(2)} unit="kgCO2/(m².yr)" detail="EUI* × 0.495" />
-                    <div className="bg-zinc-900 p-8 flex flex-col md:flex-row items-center justify-between gap-8">
-                        <div className="flex-1">
-                            <span className="text-zinc-500 text-xs font-bold uppercase tracking-[0.2em] mb-2 block">能效得分計算</span>
-                            <div className="flex items-end gap-2">
-                                <span className="text-7xl font-black text-white leading-none tracking-tighter">{Math.round(result.score)}</span>
-                                <span className="text-zinc-600 font-bold mb-2">分 / 100</span>
-                            </div>
-                        </div>
-                        <div className="h-24 w-[1px] bg-white/10 hidden md:block" />
-                        <div className="flex-1 text-right">
-                            <span className="text-zinc-500 text-xs font-bold uppercase tracking-[0.2em] mb-2 block text-right">能效等級判定</span>
-                            <div className="flex flex-col items-end">
-                                <span className="text-7xl font-black text-emerald-400 leading-none tracking-tighter group-hover:scale-110 transition-transform">{result.grade} 級</span>
-                                <span className="text-emerald-500/50 font-black text-xl italic uppercase tracking-widest mt-1">Excellent (銀級)</span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </ReportSection>
-        </div>
-    );
-}
-
-function ReportSection({ title, icon: Icon, count, children }: { title: string, icon: any, count: number, children: React.ReactNode }) {
-    return (
-        <div className="space-y-4 group">
-            <div className="flex items-center gap-3">
-                <div className="p-2 rounded-xl bg-white/5 text-zinc-400 group-hover:text-sky-400 group-hover:bg-sky-500/10 transition-all duration-300">
-                    <Icon size={18} />
-                </div>
-                <h2 className="text-base font-black text-zinc-300 group-hover:text-white transition-colors tracking-tight">{title}</h2>
-                <span className="px-1.5 py-0.5 rounded-md bg-white/5 border border-white/5 text-[9px] font-mono text-zinc-600">({count} 項目)</span>
-            </div>
-            {children}
-        </div>
-    );
-}
-
-function ReportRowG({ label, value }: { label: string, value: string }) {
-    return (
-        <div className="grid grid-cols-[160px_1fr] bg-zinc-900/30 hover:bg-zinc-900 transition-colors">
-            <div className="py-3 px-6 text-zinc-500 text-xs font-bold border-r border-white/5 bg-zinc-800/20">{label}</div>
-            <div className="py-3 px-6 text-zinc-200 text-sm font-medium">{value || "-"}</div>
-        </div>
-    );
-}
-
-function ReportRowI({ label, value, unit }: { label: string, value: any, unit: string }) {
-    return (
-        <div className="flex flex-col p-4 bg-zinc-900/30 hover:bg-zinc-900 transition-colors">
-            <span className="text-zinc-600 text-[10px] uppercase font-bold tracking-widest mb-1">{label}</span>
-            <div className="flex items-baseline gap-2">
-                <span className="text-zinc-100 font-mono font-bold text-base">{value || "0"}</span>
-                <span className="text-zinc-600 text-[9px]">{unit}</span>
-            </div>
-        </div>
-    );
-}
-
-function ReportRowReliability({ label, valid, value, threshold }: { label: string, valid: boolean, value: number, threshold: string }) {
-    const pct = (value * 100).toFixed(1) + "%";
-    return (
-        <div className="p-5 flex flex-col gap-3 group">
-            <div className="flex justify-between items-start">
-                <p className="text-zinc-400 text-[13px] leading-relaxed max-w-[240px]">{label}</p>
-                <div className="text-right">
-                    <div className={`text-lg font-mono font-black ${valid ? 'text-sky-400' : 'text-red-400'}`}>{pct}</div>
-                    <div className="text-[10px] text-zinc-600 font-bold uppercase tracking-tighter">({threshold})</div>
-                </div>
-            </div>
-            <div className="flex items-center gap-6 mt-1">
-                <div className="flex items-center gap-2">
-                    <div className={`w-3 h-3 rounded bg-zinc-800 border-2 ${valid ? 'bg-sky-500 border-sky-400 shadow-[0_0_10px_rgba(14,165,233,0.3)]' : 'border-zinc-700'}`} />
-                    <span className={`text-[10px] font-bold ${valid ? 'text-sky-400' : 'text-zinc-600'}`}>合格</span>
-                </div>
-                <div className="flex items-center gap-2">
-                    <div className={`w-3 h-3 rounded bg-zinc-800 border-2 ${!valid ? 'bg-red-500 border-red-400' : 'border-zinc-700'}`} />
-                    <span className={`text-[10px] font-bold ${!valid ? 'text-red-400' : 'text-zinc-600'}`}>不合格</span>
-                </div>
-            </div>
-        </div>
-    );
-}
-
-function ReportRowLarge({ label, value, unit, detail }: { label: string, value: any, unit: string, detail: string }) {
-    return (
-        <div className="grid grid-cols-1 md:grid-cols-[200px_1fr_200px] divide-x divide-white/10 group hover:bg-zinc-800/30 transition-colors">
-            <div className="p-4 flex flex-col justify-center">
-                <span className="text-zinc-500 text-[11px] font-black uppercase tracking-widest">{label}</span>
-            </div>
-            <div className="p-4 flex items-center justify-center">
-                <span className="text-3xl font-black text-zinc-100 font-mono">{value} <span className="text-xs text-zinc-600 font-normal ml-1">{unit}</span></span>
-            </div>
-            <div className="p-4 flex flex-col justify-center items-end">
-                <span className="text-zinc-600 text-[10px] italic">{detail}</span>
-            </div>
-        </div>
-    );
-}
-
-function ReportSummaryItem({ label, value, unit }: { label: string, value: any, unit: string }) {
-    return (
-        <div className="py-2.5 flex justify-between items-center group">
-            <span className="text-zinc-500 text-xs group-hover:text-zinc-400 transition-colors">{label}</span>
-            <div className="flex items-baseline gap-2">
-                <span className="text-zinc-200 font-mono font-bold text-sm tracking-tighter">{value === "-" ? "-" : Number(value).toLocaleString()}</span>
-                <span className="text-zinc-700 text-[9px] uppercase">{unit}</span>
-            </div>
-        </div>
-    );
-}
-
-function ResultRow({ label, value, unit }: { label: string, value: any, unit: string }) {
-    return (
-        <div className="flex justify-between items-center group">
-            <span className="text-zinc-400 text-[11px] font-medium group-hover:text-zinc-300 transition-colors">{label}</span>
-            <div className="flex items-baseline gap-1.5">
-                <span className="text-zinc-100 font-mono font-bold text-sm leading-none tabular-nums">{value.toLocaleString()}</span>
-                <span className="text-[9px] text-zinc-600 font-bold uppercase">{unit}</span>
-            </div>
-        </div>
-    );
-}
 
 const MONTHS = ["一月", "二月", "三月", "四月", "五月", "六月", "七月", "八月", "九月", "十月", "十一月", "十二月"];
 const WEEKDAYS = ["星期一", "星期二", "星期三", "星期四", "星期五", "星期六", "星期日"];
@@ -396,7 +108,11 @@ const DEMO_DATA = {
 };
 
 
+import { SummaryReport } from "@/components/SummaryReport";
+import { useRouter } from "next/navigation";
+
 export default function AssessmentPage() {
+    const router = useRouter();
     const [isDemoMode, setIsDemoMode] = useState(false);
     const [activeTab, setActiveTab] = useState("basic");
     const [isSubmitting, setIsSubmitting] = useState(false);
@@ -699,7 +415,9 @@ export default function AssessmentPage() {
         saveToCloud(res);
 
         setIsSubmitting(false);
-        setActiveTab("result");
+        if (confirm("能效數據已同步至雲端專案！\n\n是否現在前往『數據分析 (Analytics)』查看詳細評估總表？")) {
+            router.push("/analytics");
+        }
     };
 
     const handleComplete = async () => { setIsSubmitting(true); calculate(); };
@@ -1231,13 +949,9 @@ export default function AssessmentPage() {
                                 {isCloudSaving ? "存檔中..." : "暫存進度"}
                             </Button>
 
-                            {currentIndex === steps.length - 2 ? (
+                            {currentIndex === steps.length - 1 ? (
                                 <Button variant="ghost" onClick={handleComplete} disabled={isSubmitting} className="h-9 px-4 text-sm font-medium text-zinc-500 hover:text-emerald-400 hover:bg-emerald-500/5 rounded-lg transition-all disabled:opacity-50">
                                     {isSubmitting ? "計算中..." : <><Activity className="mr-2 w-4 h-4" />開始能效計算</>}
-                                </Button>
-                            ) : currentIndex === steps.length - 1 ? (
-                                <Button variant="ghost" onClick={() => window.location.href = "/"} className="h-9 px-4 text-sm font-medium text-zinc-500 hover:text-zinc-200 hover:bg-white/5 rounded-lg transition-all">
-                                    <Building2 className="mr-2 w-4 h-4" /> 返回首頁
                                 </Button>
                             ) : (
                                 <Button variant="ghost" onClick={handleNext} className="h-9 px-4 text-sm font-medium text-zinc-500 hover:text-zinc-200 hover:bg-white/5 rounded-lg transition-all">

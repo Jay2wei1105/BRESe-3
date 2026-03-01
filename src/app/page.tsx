@@ -15,8 +15,8 @@ export default function Home() {
   };
 
   const item: any = {
-    hidden: { opacity: 0, y: 20 },
-    show: { opacity: 1, y: 0, transition: { type: "tween", ease: "easeOut", duration: 0.5 } },
+    hidden: { opacity: 0 },
+    show: { opacity: 1, transition: { type: "tween", ease: "easeOut", duration: 0.5 } },
   };
 
   return (
@@ -115,14 +115,14 @@ export default function Home() {
 
 function FeatureCard({ icon, iconBg, title, desc }: { icon: React.ReactNode; iconBg: string; title: string; desc: string }) {
   const item: any = {
-    hidden: { opacity: 0, y: 30 },
-    show: { opacity: 1, y: 0, transition: { type: "tween", duration: 0.5, ease: "easeOut" } }
+    hidden: { opacity: 0 },
+    show: { opacity: 1, transition: { type: "tween", duration: 0.5, ease: "easeOut" } }
   };
 
   return (
     <motion.div
       variants={item}
-      className="group p-8 flex flex-col gap-6 bg-zinc-900/60 hover:bg-zinc-800/80 border border-white/5 hover:border-white/10 rounded-2xl transition-all duration-300 backdrop-blur-md relative overflow-hidden"
+      className="group p-8 flex flex-col gap-6 bg-zinc-900/60 hover:bg-zinc-800/80 border border-white/5 hover:border-white/10 rounded-2xl transition-all duration-300 hover:-translate-y-2 backdrop-blur-md relative overflow-hidden cursor-default"
     >
       {/* Subtle hover gradient */}
       <div className="absolute inset-0 bg-gradient-to-br from-white/[0.03] to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none" />
